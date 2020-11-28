@@ -30,6 +30,7 @@ pugixml_dep = dependency('pugixml', static:static_deps)
 libcurl_dep = dependency('libcurl', static:static_deps)
 microhttpd_dep = dependency('libmicrohttpd', static:static_deps)
 zlib_dep = dependency('zlib', static:static_deps)
+uuid_dep = dependency('uuid', static:static_deps)
 
 if compiler.has_header('mustache.hpp')
   extra_include = []
@@ -45,7 +46,7 @@ if target_machine.system() == 'windows' and static_deps
   extra_cflags += '-DCURL_STATICLIB'
 endif
 
-all_deps = [thread_dep, libicu_dep, libzim_dep, pugixml_dep, libcurl_dep, microhttpd_dep, zlib_dep]
+all_deps = [thread_dep, libicu_dep, libzim_dep, pugixml_dep, libcurl_dep, microhttpd_dep, zlib_dep, uuid_dep]
 
 inc = include_directories('include', extra_include)
 
