@@ -111,6 +111,9 @@ public class JNIKiwixReader
    */
   public native DirectAccessInfo getDirectAccessInformation(String url);
 
+
+  public native DirectAccessViaFDInfo getDirectAccessViaFD(String url);
+
   public native boolean searchSuggestions(String prefix, int count);
 
   public native boolean getNextSuggestion(JNIKiwixString title, JNIKiwixString url);

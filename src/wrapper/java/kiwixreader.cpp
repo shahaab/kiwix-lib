@@ -63,6 +63,36 @@ int jni2fd(const jobject& fdObj, JNIEnv* env)
   return env->GetIntField(fdObj, field_fd);
 }
 
+jobject fd2jni(int fd, JNIEnv* env)
+{
+  // FIXME: Prevent the FileDescriptor returned by this function from closing
+  // FIXME: the underlying libc file descriptor in its destructor
+  jclass class_fdesc = env->FindClass("java/io/FileDescriptor");
+  jmethodID mid_fdesc_init = env->GetMethodID(class_fdesc, "<init>", "()V");
+  jobject fdObj = env->NewObject(class_fdesc, mid_fdesc_init);
+  jfieldID field_fd = env->GetFieldID(class_fdesc, "fd", "I");
+  if ( field_fd == NULL )
+  {
+    env->ExceptionClear();
+    // Under Android the (private) 'fd' field of java.io.FileDescriptor has been
+    // renamed to 'descriptor'. See, for example,
+    // https://android.googlesource.com/platform/libcore/+/refs/tags/android-8.1.0_r1/ojluni/src/main/java/java/io/FileDescriptor.java#55
+    field_fd = env->GetFieldID(class_fdesc, "descriptor", "I");
+  }
+  env->SetIntField(fdObj, field_fd, fd);
+  return fdObj;
+}
+
+inline void setDirectAccessViaFDInfo(const int fd, const long offset,
+                            const jobject obj, JNIEnv* env)
+{
+  jclass objClass = env->GetObjectClass(obj);
+  jfieldID fdFid = env->GetFieldID(objClass, "fd", "Ljava/io/FileDescriptor;");
+  env->SetObjectField(obj, fdFid, fd2jni(fd, env));
+  jfieldID offsetFid = env->GetFieldID(objClass, "offset", "J");
+  env->SetLongField(obj, offsetFid, offset);
+}
+
 } // unnamed namespace
 
 JNIEXPORT jlong JNICALL Java_org_kiwix_kiwixlib_JNIKiwixReader_getNativeReaderByFD(
@@ -390,6 +420,28 @@ Java_org_kiwix_kiwixlib_JNIKiwixReader_getDirectAccessInformation(
     entry = entry.getFinalEntry();
     auto part_info = entry.getDirectAccessInfo();
     setPairObjValue(part_info.first, part_info.second, pair, env);
+  } catch (std::exception& e) {
+    LOG("Unable to get direct access info for url: %s", cUrl.c_str());
+    LOG(e.what());
+  }
+  return pair;
+}
+
+JNIEXPORT jobject JNICALL
+Java_org_kiwix_kiwixlib_JNIKiwixReader_getDirectAccessViaFD(
+    JNIEnv* env, jobject obj, jstring url)
+{
+   jclass classPair = env->FindClass("org/kiwix/kiwixlib/DirectAccessViaFDInfo");
+   jmethodID midPairinit = env->GetMethodID(classPair, "<init>", "()V");
+   jobject pair = env->NewObject(classPair, midPairinit);
+   setDirectAccessViaFDInfo(-1, 0, pair, env);
+
+   std::string cUrl = jni2c(url, env);
+   try {
+    auto entry = READER->getEntryFromEncodedPath(cUrl);
+    entry = entry.getFinalEntry();
+    auto part_info = entry.getDirectAccessViaFD();
+    setDirectAccessViaFDInfo(part_info.first, part_info.second, pair, env);
   } catch (std::exception& e) {
     LOG("Unable to get direct access info for url: %s", cUrl.c_str());
     LOG(e.what());

@@ -12,7 +12,8 @@ java_sources = files([
   'org/kiwix/kiwixlib/JNIKiwixString.java',
   'org/kiwix/kiwixlib/JNIKiwixBool.java',
   'org/kiwix/kiwixlib/JNIKiwixException.java',
-  'org/kiwix/kiwixlib/DirectAccessInfo.java'
+  'org/kiwix/kiwixlib/DirectAccessInfo.java',
+  'org/kiwix/kiwixlib/DirectAccessViaFDInfo.java'
 ])
 
 kiwix_jni = custom_target('jni',
