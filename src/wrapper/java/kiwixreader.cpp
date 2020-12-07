@@ -379,7 +379,7 @@ JNIEXPORT jobject JNICALL
 Java_org_kiwix_kiwixlib_JNIKiwixReader_getDirectAccessInformation(
     JNIEnv* env, jobject obj, jstring url)
 {
-   jclass classPair = env->FindClass("org/kiwix/kiwixlib/Pair");
+   jclass classPair = env->FindClass("org/kiwix/kiwixlib/DirectAccessInfo");
    jmethodID midPairinit = env->GetMethodID(classPair, "<init>", "()V");
    jobject pair = env->NewObject(classPair, midPairinit);
    setPairObjValue("", 0, pair, env);
