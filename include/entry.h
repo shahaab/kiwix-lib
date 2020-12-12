@@ -113,8 +113,6 @@ class Entry
      */
     zim::Item::DirectAccessInfo getDirectAccessInfo() const { return entry.getItem().getDirectAccessInformation(); }
 
-    zim::Item::DirectAccessViaFDInfo getDirectAccessViaFD() const { return entry.getItem().getDirectAccessInformationViaFD(); }
-
     /**
      * Get the size of the entry.
      *

@@ -35,17 +35,6 @@ throws IOException
   return data;
 }
 
-private static byte[] getFileContentPartial(FileDescriptor fd, int offset, int size)
-throws IOException
-{
-  FileInputStream fis = new FileInputStream(fd);
-  fis.getChannel().position(offset);
-  DataInputStream in = new DataInputStream(new BufferedInputStream(fis));
-  byte[] data = new byte[size];
-  in.read(data, 0, size);
-  return data;
-}
-
 private static String getTextFileContent(String path)
 throws IOException
 {
@@ -106,9 +95,8 @@ throws JNIKiwixException, IOException
   assertTrue(Arrays.equals(faviconData, c));
 
   DirectAccessInfo dai = reader.getDirectAccessInformation("I/favicon.png");
-  assertEquals("", dai.filename);
-  DirectAccessViaFDInfo daViaFD = reader.getDirectAccessViaFD("I/favicon.png");
-  c = getFileContentPartial(daViaFD.fd, (int)daViaFD.offset, faviconData.length);
+  assertNotEquals("", dai.filename);
+  c = getFileContentPartial(dai.filename, (int)dai.offset, faviconData.length);
   assertTrue(Arrays.equals(faviconData, c));
 }
 
@@ -138,9 +126,8 @@ throws JNIKiwixException, IOException
   assertTrue(Arrays.equals(faviconData, c));
 
   DirectAccessInfo dai = reader.getDirectAccessInformation("I/favicon.png");
-  assertEquals("", dai.filename);
-  DirectAccessViaFDInfo daViaFD = reader.getDirectAccessViaFD("I/favicon.png");
-  c = getFileContentPartial(daViaFD.fd, (int)daViaFD.offset, faviconData.length);
+  assertNotEquals("", dai.filename);
+  c = getFileContentPartial(dai.filename, (int)dai.offset, faviconData.length);
   assertTrue(Arrays.equals(faviconData, c));
 }
 
